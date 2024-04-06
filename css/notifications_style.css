@@ -1,0 +1,11 @@
+.success-notification {
+    display: none;
+    position: fixed;
+    top: 30px;
+    right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 1;
+}
