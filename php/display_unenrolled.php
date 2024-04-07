@@ -29,7 +29,7 @@ if ($result->num_rows > 0) {
         echo "<td>
                     <div class='button-container'>
                         <button class='enroll-btn' onclick='updateRole(" . $row["student_id"] . ")'>Enroll</button>
-                        <button class='cancel-btn'>Cancel</button>
+                        <button class='cancel-btn' onclick='deleteStudent(" . $row["student_id"] . ")'>Cancel</button>
                     </div>
                   </td>";
         echo "</tr>";

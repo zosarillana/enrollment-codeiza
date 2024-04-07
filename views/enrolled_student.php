@@ -44,6 +44,9 @@
       </tbody>
     </table>
   </div>
+  <?php
+  include_once ("../scripts/table_enrolledActions.php");
+  ?>
 </body>
 
 </html>
