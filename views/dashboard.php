@@ -1,13 +1,3 @@
-<?php
-session_start();
-require_once ("../php/db_connect.php");
-
-// SQL query to retrieve data from the database
-$sql = "SELECT * FROM student";
-$result = $conn->query($sql);
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,15 +13,15 @@ $result = $conn->query($sql);
     <div class="enrollment-system">ENROLLMENT SYSTEM</div>
     <div class="no-section">
       <button class="nav-btn"><a href="dashboard.php" class="enroll">With Section</a></button>
-      <button class="nav-btn"><a href="enrolled-student.php" class="enroll">ENROLLED</a></button>
+      <button class="nav-btn"><a href="enrolled_student.php" class="enroll">ENROLLED</a></button>
     </div>
     <div class="logout"><a href="../scripts/logout.php" class="log">Logout</a></div>
   </div>
   <div class="student-table">
     <div class="no-section-list">Enroll Student List (Enroll students)</div>
   </div>
-  <div class="table-container" style="max-height: 500px; overflow-y: auto;">
-    <table class="enroll-table">
+  <div class="table-container" id="table-container" style="max-height: 500px; overflow-y: auto;">
+    <table class="enroll-table" id="student-table">
       <thead>
         <tr>
           <th>ID.</th>
@@ -42,64 +32,76 @@ $result = $conn->query($sql);
           <th>Address</th>
           <th>Grade</th>
           <th>Student</th>
-          <th>Course</th>
+          <th>Section</th>
           <th>Date Enrolled</th>
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="table-body">
         <?php
-        $count = 0;
-        if ($result->num_rows > 0) {
-          // Output data of each row
-          while ($row = $result->fetch_assoc()) {
-            if ($count >= 10) {
-              break;
-            }
-            echo "<tr>";
-            echo "<td>" . $row["student_id"] . "</td>";
-            echo "<td>" . $row["student_fname"] . " " . $row["student_lname"] . "</td>";
-            echo "<td>" . $row["student_age"] . "</td>";
-            echo "<td>" . $row["student_gender"] . "</td>";
-            echo "<td>" . $row["student_contact"] . "</td>";
-            echo "<td>" . $row["student_address"] . "</td>";
-            echo "<td>" . $row["student_grade"] . "</td>";
-            echo "<td>" . $row["student_course"] . "</td>";
-            echo "<td>" . $row["student_course"] . "</td>";
-            echo "<td>" . $row["date_created"] . "</td>";
-            // Add more columns as needed
-            echo "<td>
-                    <div class='button-container'>
-                        <button class='enroll-btn' onclick='updateRole(" . $row["student_id"] . ")'>Enroll</button>
-                        <button class='cancel-btn'>Cancel</button>
-                    </div>
-                  </td>";
-            echo "</tr>";
-            $count++;
-          }
-        } else {
-          echo "<tr><td colspan='11'>No records found</td></tr>";
-        }
+        require_once ("../php/display_unenrolled.php");
         ?>
       </tbody>
     </table>
   </div>
-  </div>
-  <style>
-    function updateRole(studentId) {
-    // Send an AJAX request to update the role_id of the student
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "update_role.php", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.onreadystatechange = function() {
+
+  <script>
+    // Function to reload table content
+    function reloadTable() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "../php/display_unenrolled.php", true);
+      xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            // Handle the response if needed
-            console.log(xhr.responseText);
+          // Replace the table body content with new data
+          document.getElementById("table-body").innerHTML = xhr.responseText;
+          // Update styling
+          updateStyling();
         }
-    };
-    xhr.send("student_id=" + studentId);
-}
-  </style>
+      };
+      xhr.send();
+    }
+
+    // Function to update CSS styling
+    function updateStyling() {
+      var tableContainer = document.getElementById("table-container");
+      var rowCount = tableContainer.getElementsByTagName("tr").length;
+
+      // Set max-height and overflow based on the number of rows
+      if (rowCount > 9) {
+        tableContainer.style.maxHeight = "500px";
+        tableContainer.style.overflowY = "auto";
+      } else {
+        tableContainer.style.maxHeight = "none";
+        tableContainer.style.overflowY = "visible";
+      }
+    }
+
+    // Function to update role
+    function updateRole(studentId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "../php/update_role.php", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // Handle the response if needed
+          console.log(xhr.responseText);
+          // Reload the table after updating role
+          reloadTable();
+          // Show a message indicating that the student has been enrolled
+          alert("Student enrolled successfully!");
+        }
+      };
+      xhr.send("student_id=" + studentId);
+    }
+
+
+    // Initial table load
+    reloadTable();
+
+    // Auto-reload the table every 5 seconds (adjust as needed)
+    setInterval(reloadTable, 5000);
+  </script>
+
 </body>
 
 </html>

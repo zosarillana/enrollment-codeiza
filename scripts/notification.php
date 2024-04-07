@@ -1,6 +1,6 @@
  <!-- Success Notification -->
  <?php if(isset($_SESSION['success'])): ?>
-        <div class="success-notification" id="success-notification">Enrollment Successful!</div>
+        <div class="success-notification" id="success-notification">Submitted Successfully</div>
     <?php endif; ?>
 
     <!-- JavaScript to show success notification -->
